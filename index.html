@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cute+Font&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Averia+Libre:wght@300&display=swap" rel="stylesheet">
+    <title>FERDEVIL87X Official Websites</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+</head>
+<body>
+    <div class="navbar">
+        <div class="navbar-container">
+            <div class="logo-container"><h1 class="logo">FERDEVIL87X</h1></div>
+            <div class="menu-container">
+                <ul class="menu-list">
+                    <li class="menu-list-item active" onclick="showTab(event, 'home')">Home</li>
+                    <li class="menu-list-item" onclick="showTab(event, 'all-songs')">All Songs</li>
+                </ul>
+            </div>
+            <div class="profile-container">
+                <img src="pp.jpg" alt="Profile" class="profile-picture">
+                <div class="profile-text-container">
+                    <span class="profile-text">F87X</span>
+                </div>
+                <div class="toggle">
+                    <i class="fa-solid fa-moon toggle-icon"></i>
+                    <i class="fa-regular fa-sun toggle-icon"></i>
+                    <div class="toggle-ball"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="home-tab" class="tab-content active">
+        <section class="hero">
+            <div class="hero-content">
+                <h2>Ultraman Music Library</h2>
+                <p>Telusuri lagu Ultraman dari era Showa, Heisei, dan Reiwa. Klik tombol Watch untuk melihat video dan detail lagu dengan tampilan lebih bersih dan rapi.</p>
+            </div>
+        </section>
+
+        <div class="container">
+            <div class="content-container">
+                
+                <div class="movie-list-container" id="showa-era">
+                    <h1 class="movie-list-title">Showa Era Songs</h1>
+                    <div class="movie-list-wrapper">
+                        <div class="song-list" id="showa-list">
+                            </div>
+                        <i class="fa-solid fa-chevron-right arrow"></i>
+                    </div>
+                </div>
+
+                <div class="movie-list-container" id="heisei-era">
+                    <h1 class="movie-list-title">Heisei Era Songs</h1>
+                    <div class="movie-list-wrapper">
+                        <div class="song-list" id="heisei-list">
+                            </div>
+                        <i class="fa-solid fa-chevron-right arrow"></i>
+                    </div>
+                </div>
+
+                <div class="movie-list-container" id="reiwa-era">
+                    <h1 class="movie-list-title">Reiwa Era Songs</h1>
+                    <div class="movie-list-wrapper">
+                        <div class="song-list" id="reiwa-list">
+                            </div>
+                        <i class="fa-solid fa-chevron-right arrow"></i>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div id="all-songs-tab" class="tab-content">
+        <div class="container">
+            <div class="content-container">
+                <div class="all-songs-header">
+                    <h1 class="all-songs-title">All Songs</h1>
+                    <div class="sub-tabs">
+                        <button class="sub-tab active" onclick="showSubTab(event, 'showa-all')">Showa</button>
+                        <button class="sub-tab" onclick="showSubTab(event, 'heisei-all')">Heisei</button>
+                        <button class="sub-tab" onclick="showSubTab(event, 'reiwa-all')">Reiwa</button>
+                    </div>
+                    <div class="search-container">
+                        <input type="text" id="search-input" placeholder="Search songs..." class="search-input">
+                        <button id="search-button" class="search-button"><i class="fa-solid fa-search"></i></button>
+                    </div>
+                </div>
+                <div id="showa-all" class="sub-tab-content active">
+                    <div class="song-list-row" id="showa-all-list"></div>
+                </div>
+                <div id="heisei-all" class="sub-tab-content">
+                    <div class="song-list-row" id="heisei-all-list"></div>
+                </div>
+                <div id="reiwa-all" class="sub-tab-content">
+                    <div class="song-list-row" id="reiwa-all-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="videoModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <div class="iframe-container" id="modal-iframe-container">
+                </div>
+            <div class="modal-info">
+                <h2 id="modal-title">Judul Lagu</h2>
+                <p id="modal-detail" class="detail-text">Artis / Rilis / Album</p>
+                <p id="modal-desc">Deskripsi lagu akan muncul di sini...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Lagu Ultraman (Dark Mode & Search)</title>
+    <style>
+        /* Base / Light Mode */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        h1 {
+            color: #d32f2f;
+            margin: 0;
+            flex-grow: 1;
+            text-align: center;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        /* Toggle Button Styling */
+        .theme-toggle {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: transform 0.2s;
+        }
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        /* Status Bar */
+        #status-bar {
+            background-color: #e3f2fd;
+            color: #1565c0;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 20px 0;
+            text-align: center;
+            font-weight: bold;
+            border: 1px solid #bbdefb;
+        }
+
+        /* Tabs Styling */
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ddd;
+        }
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            color: #666;
+            outline: none;
+            transition: color 0.3s, border-color 0.3s;
+        }
+        .tab-btn.active {
+            color: #d32f2f;
+            border-bottom: 3px solid #d32f2f;
+        }
+        .tab-btn:hover { color: #d32f2f; }
+
+        /* Form Styling */
+        .form-container {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        .form-container h3 {
+            margin-top: 0;
+            color: #444;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 10px;
+        }
+        .form-group label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        .form-group input, .form-group textarea {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-family: inherit;
+            background-color: #fff;
+            color: #333;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        /* Buttons */
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            color: white;
+        }
+        .btn-save { background-color: #4CAF50; }
+        .btn-save:hover { background-color: #45a049; }
+        .btn-cancel { background-color: #9e9e9e; margin-left: 5px; display: none;}
+        .btn-edit { background-color: #2196F3; padding: 5px 10px; font-size: 12px;}
+        .btn-delete { background-color: #f44336; padding: 5px 10px; font-size: 12px;}
+        
+        /* Search Bar */
+        .search-container {
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: flex-end;
+        }
+        .search-container input {
+            padding: 10px;
+            width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            background-color: #fff;
+            color: #333;
+        }
+
+        /* Table Styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            font-size: 14px;
+        }
+        th {
+            background-color: #d32f2f;
+            color: white;
+        }
+        tr:nth-child(even) { background-color: #f2f2f2; }
+        tr:hover { background-color: #e9e9e9; }
+        .actions { white-space: nowrap; }
+        
+        /* Link styling agar bisa diubah warnanya saat dark mode */
+        .link-embed {
+            color: #d32f2f;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        /* ==================================
+           DARK MODE STYLES
+           ================================== */
+        body.dark-mode {
+            background-color: #121212;
+            color: #e0e0e0;
+        }
+        body.dark-mode .container {
+            background: #1e1e1e;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+        }
+        body.dark-mode h1 { color: #ef5350; }
+        body.dark-mode .form-container h3 { color: #e0e0e0; }
+        
+        /* Dark Mode Form */
+        body.dark-mode .form-container {
+            background: #2a2a2a;
+            border-color: #444;
+        }
+        body.dark-mode .form-group input, 
+        body.dark-mode .form-group textarea,
+        body.dark-mode .search-container input {
+            background-color: #333;
+            color: #fff;
+            border-color: #555;
+        }
+        
+        /* Dark Mode Tabs */
+        body.dark-mode .tab-btn {
+            color: #aaa;
+            border-bottom-color: #444;
+        }
+        body.dark-mode .tab-btn.active {
+            color: #ef5350;
+            border-bottom-color: #ef5350;
+        }
+        body.dark-mode .tab-btn:hover { color: #ef5350; }
+
+        /* Dark Mode Table */
+        body.dark-mode table, 
+        body.dark-mode th, 
+        body.dark-mode td {
+            border-color: #444;
+        }
+        body.dark-mode th { background-color: #c62828; }
+        body.dark-mode tr:nth-child(even) { background-color: #242424; }
+        body.dark-mode tr:hover { background-color: #333; }
+        
+        /* Dark Mode Links & Status */
+        body.dark-mode .link-embed { color: #ef5350; }
+        body.dark-mode #status-bar {
+            background-color: #1a3a5a;
+            color: #90caf9;
+            border-color: #0d47a1;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header-container">
+        <div style="width: 40px;"></div> 
+        <h1>Database Lagu Ultraman</h1>
+        <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn" title="Ganti Tema">🌙</button>
+    </div>
+    
+    <div id="status-bar">Sedang memuat data CSV dari folder...</div>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('showa')" id="tab-showa">Era Showa</button>
+        <button class="tab-btn" onclick="switchTab('heisei')" id="tab-heisei">Era Heisei</button>
+        <button class="tab-btn" onclick="switchTab('reiwa')" id="tab-reiwa">Era Reiwa</button>
+    </div>
+
+    <div class="form-container">
+        <h3 id="form-title">Tambah Data - Era Showa</h3>
+        <input type="hidden" id="data-index" value="-1">
+        
+        <div class="form-group">
+            <label>Judul</label>
+            <input type="text" id="input-judul" placeholder="Contoh: Ultra March (1966)" required>
+        </div>
+        <div class="form-group">
+            <label>Link Embed</label>
+            <input type="text" id="input-link" placeholder="Link Google Drive / Youtube">
+        </div>
+        <div class="form-group">
+            <label>Info Detail</label>
+            <input type="text" id="input-info" placeholder="Artist, Released, Album...">
+        </div>
+        <div class="form-group">
+            <label>Deskripsi</label>
+            <textarea id="input-deskripsi" rows="2" placeholder="Deskripsi lagu..."></textarea>
+        </div>
+        
+        <div>
+            <button class="btn btn-save" onclick="saveData()">Simpan Data</button>
+            <button class="btn btn-cancel" id="btn-cancel" onclick="resetForm()">Batal Edit</button>
+        </div>
+    </div>
+
+    <div class="search-container">
+        <input type="text" id="search-input" placeholder="🔍 Cari judul, artis, atau deskripsi..." oninput="renderTable()">
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>Judul</th>
+                <th>Info Detail</th>
+                <th>Deskripsi</th>
+                <th>Link Embed</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody id="table-body">
+            </tbody>
+    </table>
+</div>
+
+<script>
+    // Menyimpan data per kategori
+    let appData = { showa: [], heisei: [], reiwa: [] };
+
+    // Daftar nama file CSV
+    const csvFiles = {
+        showa: 'database_ultraman_showa.csv',
+        heisei: 'database_ultraman_heisei.csv',
+        reiwa: 'database_ultraman_reiwa.csv'
+    };
+
+    let currentCategory = 'showa';
+
+    // ============================================
+    // FUNGSI TEMA (DARK / LIGHT MODE)
+    // ============================================
+    function applySavedTheme() {
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+            document.getElementById('theme-btn').innerText = '☀️';
+        } else {
+            document.getElementById('theme-btn').innerText = '🌙';
+        }
+    }
+
+    function toggleTheme() {
+        const body = document.body;
+        const btn = document.getElementById('theme-btn');
+        
+        body.classList.toggle('dark-mode');
+        
+        if (body.classList.contains('dark-mode')) {
+            btn.innerText = '☀️';
+            localStorage.setItem('theme', 'dark');
+        } else {
+            btn.innerText = '🌙';
+            localStorage.setItem('theme', 'light');
+        }
+    }
+
+    // ============================================
+    // FUNGSI CSV & CRUD 
+    // ============================================
+    async function loadAllCSV() {
+        const statusBar = document.getElementById('status-bar');
+        let errors = [];
+
+        for (let category in csvFiles) {
+            try {
+                let response = await fetch(csvFiles[category]);
+                if (response.ok) {
+                    let text = await response.text();
+                    prosesCSV(text, category);
+                } else {
+                    errors.push(`Gagal membaca ${csvFiles[category]}`);
+                }
+            } catch (error) {
+                errors.push(`Error membaca ${csvFiles[category]}: Harap gunakan Web Server (Live Server)`);
+            }
+        }
+
+        if (errors.length > 0) {
+            statusBar.style.backgroundColor = '#ffebee';
+            statusBar.style.color = '#c62828';
+            statusBar.style.borderColor = '#ffcdd2';
+            // Khusus dark mode status bar error
+            if(document.body.classList.contains('dark-mode')){
+                 statusBar.style.backgroundColor = '#4a1010';
+                 statusBar.style.color = '#ff8a80';
+                 statusBar.style.borderColor = '#b71c1c';
+            }
+            statusBar.innerHTML = errors.join('<br>');
+        } else {
+            statusBar.style.backgroundColor = '#e8f5e9';
+            statusBar.style.color = '#2e7d32';
+            statusBar.style.borderColor = '#c8e6c9';
+            // Khusus dark mode status bar sukses
+            if(document.body.classList.contains('dark-mode')){
+                 statusBar.style.backgroundColor = '#1b3e20';
+                 statusBar.style.color = '#a5d6a7';
+                 statusBar.style.borderColor = '#2e7d32';
+            }
+            statusBar.innerHTML = "✅ Semua data berhasil dimuat!";
+            setTimeout(() => { statusBar.style.display = 'none'; }, 3000);
+        }
+        renderTable();
+    }
+
+    function prosesCSV(text, category) {
+        let rows = [];
+        let currentRow = [];
+        let currentCell = '';
+        let inQuotes = false;
+
+        for (let i = 0; i < text.length; i++) {
+            let char = text[i];
+            let nextChar = text[i + 1];
+
+            if (char === '"' && inQuotes && nextChar === '"') {
+                currentCell += '"';
+                i++;
+            } else if (char === '"') {
+                inQuotes = !inQuotes;
+            } else if (char === ',' && !inQuotes) {
+                currentRow.push(currentCell.trim());
+                currentCell = '';
+            } else if ((char === '\n' || char === '\r') && !inQuotes) {
+                if (char === '\r' && nextChar === '\n') i++; 
+                currentRow.push(currentCell.trim());
+                if (currentRow.join('').trim() !== '') {
+                    rows.push(currentRow);
+                }
+                currentRow = [];
+                currentCell = '';
+            } else {
+                currentCell += char;
+            }
+        }
+        
+        if (currentCell || currentRow.length > 0) {
+            currentRow.push(currentCell.trim());
+            rows.push(currentRow);
+        }
+
+        // Masukkan data, Skip header
+        for (let i = 1; i < rows.length; i++) {
+            let row = rows[i];
+            if (row.length >= 4) { 
+                appData[category].push({
+                    judul: row[0] || "",
+                    link: row[1] || "",
+                    info: row[2] || "",
+                    deskripsi: row[3] || ""
+                });
+            }
+        }
+    }
+
+    function switchTab(category) {
+        currentCategory = category;
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById('tab-' + category).classList.add('active');
+        
+        let categoryName = category.charAt(0).toUpperCase() + category.slice(1);
+        document.getElementById('form-title').innerText = "Tambah Data - Era " + categoryName;
+        
+        document.getElementById('search-input').value = '';
+        resetForm();
+        renderTable();
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById('table-body');
+        const searchTerm = document.getElementById('search-input').value.toLowerCase();
+        const data = appData[currentCategory];
+        
+        let html = '';
+        let displayCount = 0;
+
+        data.forEach((item, originalIndex) => {
+            if (item.judul.toLowerCase().includes(searchTerm) || 
+                item.info.toLowerCase().includes(searchTerm) || 
+                item.deskripsi.toLowerCase().includes(searchTerm)) {
+                
+                displayCount++;
+                html += `<tr>
+                    <td>${displayCount}</td>
+                    <td><strong>${item.judul}</strong></td>
+                    <td>${item.info}</td>
+                    <td>${item.deskripsi}</td>
+                    <td>
+                        <a href="${item.link}" target="_blank" class="link-embed">[Buka Link]</a>
+                    </td>
+                    <td class="actions">
+                        <button class="btn btn-edit" onclick="editData(${originalIndex})">Edit</button>
+                        <button class="btn btn-delete" onclick="deleteData(${originalIndex})">Hapus</button>
+                    </td>
+                </tr>`;
+            }
+        });
+
+        if (displayCount === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Data tidak ditemukan atau masih kosong.</td></tr>';
+        } else {
+            tbody.innerHTML = html;
+        }
+    }
+
+    function saveData() {
+        const judul = document.getElementById('input-judul').value;
+        const link = document.getElementById('input-link').value;
+        const info = document.getElementById('input-info').value;
+        const deskripsi = document.getElementById('input-deskripsi').value;
+        const editIndex = document.getElementById('data-index').value;
+
+        if (!judul) {
+            alert("Judul tidak boleh kosong!");
+            return;
+        }
+
+        const newData = { judul, link, info, deskripsi };
+
+        if (editIndex === "-1") {
+            appData[currentCategory].push(newData); 
+        } else {
+            appData[currentCategory][parseInt(editIndex)] = newData; 
+        }
+
+        resetForm();
+        renderTable();
+    }
+
+    function editData(index) {
+        const item = appData[currentCategory][index];
+        document.getElementById('input-judul').value = item.judul;
+        document.getElementById('input-link').value = item.link;
+        document.getElementById('input-info').value = item.info;
+        document.getElementById('input-deskripsi').value = item.deskripsi;
+        document.getElementById('data-index').value = index;
+        
+        let categoryName = currentCategory.charAt(0).toUpperCase() + currentCategory.slice(1);
+        document.getElementById('form-title').innerText = "Edit Data - Era " + categoryName;
+        document.getElementById('btn-cancel').style.display = 'inline-block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function deleteData(index) {
+        if (confirm("Hapus baris data ini?")) {
+            appData[currentCategory].splice(index, 1);
+            renderTable();
+            resetForm();
+        }
+    }
+
+    function resetForm() {
+        document.getElementById('input-judul').value = '';
+        document.getElementById('input-link').value = '';
+        document.getElementById('input-info').value = '';
+        document.getElementById('input-deskripsi').value = '';
+        document.getElementById('data-index').value = "-1";
+        
+        let categoryName = currentCategory.charAt(0).toUpperCase() + currentCategory.slice(1);
+        document.getElementById('form-title').innerText = "Tambah Data - Era " + categoryName;
+        document.getElementById('btn-cancel').style.display = 'none';
+    }
+
+    // Eksekusi saat halaman pertama kali dibuka
+    window.onload = () => {
+        applySavedTheme(); 
+        loadAllCSV();
+    };
+
+</script>
+
+</body>
+</html>
