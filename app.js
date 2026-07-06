@@ -165,6 +165,16 @@ function openModal(dataString) {
     document.getElementById("modal-title").innerText = item.Judul;
     document.getElementById("modal-detail").innerText = item.Info_Detail;
     document.getElementById("modal-desc").innerText = item.Deskripsi;
+    const lirikContainer = document.getElementById('modal-lirik');
+
+    if (item.Lirik && item.Lirik.trim() !== "") {
+        lirikContainer.textContent = item.Lirik;
+        lirikContainer.style.display = "block";
+    } else {
+        lirikContainer.textContent = "";
+        lirikContainer.style.display = "none";
+    }
+
     const iframeContainer = document.getElementById("modal-iframe-container");
     iframeContainer.innerHTML = `<iframe src="${item.Link_Embed}" frameborder="0" allowfullscreen></iframe>`;
     modal.style.display = "block";

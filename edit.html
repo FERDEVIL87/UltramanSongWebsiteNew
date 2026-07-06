@@ -260,8 +260,19 @@
             <input type="text" id="input-judul" placeholder="Contoh: Ultra March (1966)" required>
         </div>
         <div class="form-group">
-            <label>Link Embed</label>
-            <input type="text" id="input-link" placeholder="Link Google Drive / Youtube">
+            <label for="input-tipe">Tipe Media:</label>
+            <select id="input-tipe" onchange="toggleMediaInput()">
+                <option value="embed">Embed Link (YouTube / Drive)</option>
+                <option value="audio">Audio File Lokal</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label id="label-link" for="input-link">Link Embed URL:</label>
+            <input type="text" id="input-link" placeholder="Masukkan URL Embed..." required>
+        </div>
+        <div class="form-group" id="grup-lirik" style="display: none;">
+            <label for="input-lirik">Lirik Lagu:</label>
+            <textarea id="input-lirik" rows="4" placeholder="Masukkan lirik lagu di sini..."></textarea>
         </div>
         <div class="form-group">
             <label>Info Detail</label>
@@ -287,9 +298,11 @@
             <tr>
                 <th>No</th>
                 <th>Judul</th>
+                <th>Tipe</th>
                 <th>Info Detail</th>
                 <th>Deskripsi</th>
-                <th>Link Embed</th>
+                <th>Link / Path</th>
+                <th>Lirik</th>
                 <th>Aksi</th>
             </tr>
         </thead>
@@ -335,6 +348,23 @@
         } else {
             btn.innerText = '🌙';
             localStorage.setItem('theme', 'light');
+        }
+    }
+
+    function toggleMediaInput() {
+        const tipeMedia = document.getElementById('input-tipe').value;
+        const labelLink = document.getElementById('label-link');
+        const grupLirik = document.getElementById('grup-lirik');
+        const inputLink = document.getElementById('input-link');
+
+        if (tipeMedia === 'audio') {
+            labelLink.innerText = "Lokasi File Audio:";
+            inputLink.placeholder = "Contoh: Audio/lagu_ultraman.mp3";
+            grupLirik.style.display = "block";
+        } else {
+            labelLink.innerText = "Link Embed URL:";
+            inputLink.placeholder = "Masukkan URL Embed...";
+            grupLirik.style.display = "none";
         }
     }
 
@@ -425,12 +455,32 @@
         // Masukkan data, Skip header
         for (let i = 1; i < rows.length; i++) {
             let row = rows[i];
-            if (row.length >= 4) { 
+            if (row.length >= 6) {
                 appData[category].push({
                     judul: row[0] || "",
+                    tipe: row[1] || "embed",
+                    link: row[2] || "",
+                    info: row[3] || "",
+                    deskripsi: row[4] || "",
+                    lirik: row[5] || ""
+                });
+            } else if (row.length === 5) {
+                appData[category].push({
+                    judul: row[0] || "",
+                    tipe: 'embed',
                     link: row[1] || "",
                     info: row[2] || "",
-                    deskripsi: row[3] || ""
+                    deskripsi: row[3] || "",
+                    lirik: row[4] || ""
+                });
+            } else if (row.length === 4) {
+                appData[category].push({
+                    judul: row[0] || "",
+                    tipe: 'embed',
+                    link: row[1] || "",
+                    info: row[2] || "",
+                    deskripsi: row[3] || "",
+                    lirik: ""
                 });
             }
         }
@@ -458,19 +508,22 @@
         let displayCount = 0;
 
         data.forEach((item, originalIndex) => {
-            if (item.judul.toLowerCase().includes(searchTerm) || 
-                item.info.toLowerCase().includes(searchTerm) || 
-                item.deskripsi.toLowerCase().includes(searchTerm)) {
-                
+            const searchTarget = [item.judul, item.tipe, item.link, item.info, item.deskripsi, item.lirik]
+                .map(value => (value || '').toString().toLowerCase());
+
+            if (searchTarget.some(value => value.includes(searchTerm))) {
                 displayCount++;
+                const linkLabel = item.tipe === 'audio' ? '[Buka File]' : '[Buka Link]';
+                const linkDisplay = item.link ? `<a href="${item.link}" target="_blank" class="link-embed">${linkLabel}</a>` : '-';
+
                 html += `<tr>
                     <td>${displayCount}</td>
                     <td><strong>${item.judul}</strong></td>
+                    <td>${item.tipe || ''}</td>
                     <td>${item.info}</td>
                     <td>${item.deskripsi}</td>
-                    <td>
-                        <a href="${item.link}" target="_blank" class="link-embed">[Buka Link]</a>
-                    </td>
+                    <td>${linkDisplay}</td>
+                    <td>${item.lirik || '-'}</td>
                     <td class="actions">
                         <button class="btn btn-edit" onclick="editData(${originalIndex})">Edit</button>
                         <button class="btn btn-delete" onclick="deleteData(${originalIndex})">Hapus</button>
@@ -488,9 +541,11 @@
 
     function saveData() {
         const judul = document.getElementById('input-judul').value;
+        const tipe = document.getElementById('input-tipe').value;
         const link = document.getElementById('input-link').value;
         const info = document.getElementById('input-info').value;
         const deskripsi = document.getElementById('input-deskripsi').value;
+        const lirik = document.getElementById('input-lirik').value;
         const editIndex = document.getElementById('data-index').value;
 
         if (!judul) {
@@ -498,7 +553,7 @@
             return;
         }
 
-        const newData = { judul, link, info, deskripsi };
+        const newData = { judul, tipe, link, info, deskripsi, lirik };
 
         if (editIndex === "-1") {
             appData[currentCategory].push(newData); 
@@ -513,10 +568,13 @@
     function editData(index) {
         const item = appData[currentCategory][index];
         document.getElementById('input-judul').value = item.judul;
+        document.getElementById('input-tipe').value = item.tipe || 'embed';
         document.getElementById('input-link').value = item.link;
         document.getElementById('input-info').value = item.info;
         document.getElementById('input-deskripsi').value = item.deskripsi;
+        document.getElementById('input-lirik').value = item.lirik || '';
         document.getElementById('data-index').value = index;
+        toggleMediaInput();
         
         let categoryName = currentCategory.charAt(0).toUpperCase() + currentCategory.slice(1);
         document.getElementById('form-title').innerText = "Edit Data - Era " + categoryName;
@@ -534,10 +592,13 @@
 
     function resetForm() {
         document.getElementById('input-judul').value = '';
+        document.getElementById('input-tipe').value = 'embed';
         document.getElementById('input-link').value = '';
         document.getElementById('input-info').value = '';
         document.getElementById('input-deskripsi').value = '';
+        document.getElementById('input-lirik').value = '';
         document.getElementById('data-index').value = "-1";
+        toggleMediaInput();
         
         let categoryName = currentCategory.charAt(0).toUpperCase() + currentCategory.slice(1);
         document.getElementById('form-title').innerText = "Tambah Data - Era " + categoryName;

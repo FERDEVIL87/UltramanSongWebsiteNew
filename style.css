@@ -766,21 +766,25 @@ button,
 }
 
 .iframe-container {
-    position: relative;
     width: 100%;
-    padding-bottom: 52%;
-    height: 0;
     margin-top: 14px;
     margin-bottom: 14px;
+    border-radius: 14px;
+    overflow: hidden; /* Memastikan sudut melengkung bekerja */
 }
 
 .iframe-container iframe {
-    position: absolute;
-    top: 0;
-    left: 0;
     width: 100%;
-    height: 100%;
-    border-radius: 14px;
+    min-height: 250px; /* Tinggi standar agar pas di layar HP */
+    border: none;
+    display: block;
+}
+
+/* Aturan tambahan khusus untuk layar Desktop/Tablet biar tidak ngepress */
+@media (min-width: 700px) {
+    .iframe-container iframe {
+        min-height: 400px; /* Ditinggikan agar lega di layar lebar */
+    }
 }
 
 .modal-info h2 {
@@ -802,4 +806,16 @@ button,
     font-size: 20px;
     letter-spacing: 0.8px;
     color: #d8ddec;
+}
+
+.lirik-text {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    white-space: pre-wrap;
+    font-size: 15px;
+    line-height: 1.6;
+    color: #d1d5db;
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    display: none;
 }
